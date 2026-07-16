@@ -5,8 +5,119 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProyectoIntegral"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Calculoop" Height="740" Width="1050" HorizontalAlignment="Center" Background="#121212" WindowStartupLocation="CenterScreen">
+
+    <Grid Background="#121212" Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1.2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera principal -->
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="#1B1B1B" Padding="25,20,25,20" BorderBrush="#C08457" BorderThickness="0,0,0,1">
+            <StackPanel>
+                <TextBlock Text="CALCULOOP" FontSize="20" Foreground="#C08457" FontWeight="Bold" FontFamily="Georgia"/>
+                <TextBlock Text="Calculadora de integrales" FontSize="12" Foreground="#A3A3A3" FontFamily="Segoe UI" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Panel izquierdo de entrada de datos -->
+        <Border Grid.Row="1" Grid.Column="0" Margin="25" Background="#1B1B1B" CornerRadius="2" Padding="25" BorderBrush="#2A2A2A" BorderThickness="1">
+            <StackPanel>
+
+                <!-- Funcion -->
+                <TextBlock Text="f(x) - Expresión" Foreground="#A3A3A3" FontSize="13" Margin="0,0,0,6" FontFamily="Segoe UI"/>
+                <TextBox x:Name="txtFuncion" Height="42" Background="#121212" Foreground="#F5F5F5" BorderBrush="#C08457" BorderThickness="2,1,1,1" Padding="12,0,12,0" FontSize="16" Margin="0,0,0,25" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+
+                <!-- Variable -->
+                <TextBlock Text="Variable de integración" Foreground="#A3A3A3" FontSize="13" Margin="0,0,0,6" FontFamily="Segoe UI"/>
+                <TextBox x:Name="txtVariable" Height="42" Background="#121212" Foreground="#F5F5F5" BorderBrush="#2A2A2A" BorderThickness="1" Padding="12,0,12,0" FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Text="x" Margin="0,0,0,25" FontFamily="Consolas"/>
+
+                <!-- Tipo de integral -->
+                <Grid Margin="0,0,0,25">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="btnIndefinida" Grid.Column="0" Content="∫ INDEFINIDA" Height="38" Background="#121212" Foreground="#A3A3A3" BorderBrush="#2A2A2A" FontWeight="Bold" FontSize="13"/>
+                    <Button x:Name="btnDefinida" Grid.Column="2" Content="∫ DEFINIDA" Height="38" Background="#2B2019" Foreground="#C08457" BorderBrush="#C08457" FontWeight="Bold" FontSize="13"/>
+                </Grid>
+
+                <!-- Limites de integracion -->
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Límite inferior [a]" Foreground="#A3A3A3" FontSize="12" Margin="0,0,0,6" FontFamily="Consolas"/>
+                        <TextBox x:Name="txtLimiteA" Height="40" Background="#121212" Foreground="#F5F5F5" BorderBrush="#2A2A2A" Padding="12,0,12,0" FontSize="15" VerticalContentAlignment="Center" Text="1" FontFamily="Consolas"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Límite superior [b]" Foreground="#A3A3A3" FontSize="12" Margin="0,0,0,6" FontFamily="Segoe UI"/>
+                        <TextBox x:Name="txtLimiteB" Height="40" Background="#121212" Foreground="#F5F5F5" BorderBrush="#2A2A2A" Padding="12,0,12,0" FontSize="15" VerticalContentAlignment="Center" Text="e" FontFamily="Segoe UI"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Previsualizacion matematica -->
+                <Border Background="#121212" CornerRadius="2" Height="100" Margin="0,0,0,25" BorderBrush="#2A2A2A" BorderThickness="1">
+                    <TextBlock x:Name="lblPreview" Text="∫ log(x) dx" Foreground="#F5F5F5" FontSize="26" FontFamily="Cambria Math" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- Accion principal -->
+                <Button x:Name="btnCalcular" Content="CALCULAR INTEGRAL" Height="48" Background="#C08457" Foreground="#121212" BorderBrush="#C08457" BorderThickness="0" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Panel derecho de resultados -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,25,25,25">
+
+            <!-- Bloque de la antiderivada -->
+            <Border Background="#1B1B1B" CornerRadius="2" Padding="25" Margin="0,0,0,20" BorderBrush="#C08457" BorderThickness="3,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="ANTIDERIVADA" Foreground="#A3A3A3" FontSize="13" Margin="0,0,0,15" FontFamily="Segoe UI"/>
+                    <TextBlock x:Name="lblAntiderivada" Text="F(x) = x · (ln(x) - 1)" Foreground="#D4A373" FontSize="26" FontFamily="Cambria Math" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Bloque del resultado definido -->
+            <Border Background="#1B1B1B" CornerRadius="2" Padding="25" Margin="0,0,0,20" BorderBrush="#7BD389" BorderThickness="3,0,0,0">
+                <StackPanel>
+                    <TextBlock Text=" RESULTADO " Foreground="#A3A3A3" FontSize="13" Margin="0,0,0,15" FontFamily="Segoe UI"/>
+                    <TextBlock x:Name="lblResultado" Text="1" Foreground="#7BD389" FontSize="32" FontFamily="Cambria Math" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Bloque del desarrollo analitico -->
+            <Border Background="#1B1B1B" CornerRadius="2" Padding="25" BorderBrush="#2A2A2A" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text=" DESARROLLO ANALÍTICO " Foreground="#A3A3A3" FontSize="13" Margin="0,0,0,15" FontFamily="Segoe UI"/>
+
+                    <StackPanel Background="#121212" Margin="0,5,0,0">
+                        <Border BorderBrush="#2A2A2A" BorderThickness="1" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="1. Integración por partes: u = ln(x), dv = dx" Foreground="#F5F5F5" FontSize="14" FontFamily="Segoe UI" Margin="0,0,0,10"/>
+                                <TextBlock Text="∫ ln(x) dx = x · ln(x) - ∫ x · (1/x) dx" Foreground="#94A3B8" FontSize="14" FontFamily="Segoe UI" Margin="0,0,0,10"/>
+
+                                <Border Background="#1B1B1B" HorizontalAlignment="Left" CornerRadius="0" Padding="10,6,10,6" BorderBrush="#333333" BorderThickness="1,0,0,0">
+                                    <TextBlock Text="=> x * log(x) - x" Foreground="#E6B17E" FontSize="13" FontFamily="Segoe UI"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
 
     </Grid>
 </Window>
