@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AngouriMath" Version="1.4.0" />
     <PackageReference Include="NCalc" Version="6.4.0" />
+    <PackageReference Include="NCalcSync" Version="6.4.0" />
   </ItemGroup>
 
 </Project>
