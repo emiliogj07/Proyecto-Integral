@@ -5,6 +5,10 @@ using System.Windows.Media;
 using NCalc;
 using AngouriMath;
 using AngouriMath.Extensions;
+using ScottPlot;
+
+using MediaColor = System.Windows.Media.Color;
+using MediaColors = System.Windows.Media.Colors;
 
 namespace ProyectoIntegral
 {
@@ -15,6 +19,11 @@ namespace ProyectoIntegral
 
         // Número de particiones para la Regla del Trapecio
         private const int PARTICIONES = 1000;
+
+        // Configuración de la gráfica
+        private const int PUNTOS_GRAFICA = 500;
+        private const double GRAFICA_MIN = -10;
+        private const double GRAFICA_MAX = 10;
 
         public MainWindow()
         {
@@ -51,15 +60,15 @@ namespace ProyectoIntegral
         {
             esIntegralDefinida = false;
 
-            btnIndefinida.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2B2019"));
-            btnIndefinida.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C08457"));
-            btnDefinida.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#121212"));
-            btnDefinida.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A3A3A3"));
+            btnIndefinida.Background = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#2B2019"));
+            btnIndefinida.Foreground = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#C08457"));
+            btnDefinida.Background = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#121212"));
+            btnDefinida.Foreground = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#A3A3A3"));
 
             txtLimiteA.IsEnabled = false;
             txtLimiteB.IsEnabled = false;
-            txtLimiteA.Foreground = new SolidColorBrush(Colors.Gray);
-            txtLimiteB.Foreground = new SolidColorBrush(Colors.Gray);
+            txtLimiteA.Foreground = new SolidColorBrush(MediaColors.Gray);
+            txtLimiteB.Foreground = new SolidColorBrush(MediaColors.Gray);
 
             LimpiarSalidas();
             ActualizarPrevisualizacion(null, null);
@@ -72,15 +81,15 @@ namespace ProyectoIntegral
         {
             esIntegralDefinida = true;
 
-            btnDefinida.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2B2019"));
-            btnDefinida.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C08457"));
-            btnIndefinida.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#121212"));
-            btnIndefinida.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A3A3A3"));
+            btnDefinida.Background = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#2B2019"));
+            btnDefinida.Foreground = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#C08457"));
+            btnIndefinida.Background = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#121212"));
+            btnIndefinida.Foreground = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#A3A3A3"));
 
             txtLimiteA.IsEnabled = true;
             txtLimiteB.IsEnabled = true;
-            txtLimiteA.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5"));
-            txtLimiteB.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5"));
+            txtLimiteA.Foreground = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#F5F5F5"));
+            txtLimiteB.Foreground = new SolidColorBrush((MediaColor)ColorConverter.ConvertFromString("#F5F5F5"));
 
             LimpiarSalidas();
             ActualizarPrevisualizacion(null, null);
@@ -96,6 +105,17 @@ namespace ProyectoIntegral
             lblDetalle1.Text = "La integral definida representa el área con signo, no necesariamente el área geométrica.";
             lblDetalle2.Text = "Esperando parámetros para generar el reporte de intervalos...";
             lblH.Text = "h = (b-a)/n";
+
+            LimpiarGrafica();
+        }
+
+        private void LimpiarGrafica()
+        {
+            if (GraficaIntegral == null)
+                return;
+
+            GraficaIntegral.Plot.Clear();
+            GraficaIntegral.Refresh();
         }
 
         // =====================================================================
@@ -168,6 +188,15 @@ namespace ProyectoIntegral
                 lblDetalle1.Text = "Integración simbólica procesada por AngouriMath.";
                 lblDetalle2.Text = "Se ha calculado la familia de antiderivadas agregando la constante de integración (C), ya que existen infinitas funciones cuya derivada coincide con f(" + variable + ").";
                 lblH.Text = "Modo simbólico (no aplica partición numérica)";
+
+                GenerarGrafica(
+                   formula,
+                   variable,
+                   GRAFICA_MIN,
+                   GRAFICA_MAX,
+                   false
+                );
+
             }
             catch (Exception ex)
             {
@@ -242,15 +271,242 @@ namespace ProyectoIntegral
                 }
 
                 lblResultado.Text = resultadoIntegral.ToString("F6");
+                if (limiteA > limiteB)
+                {
+                    lblDetalle1.Text =
+                        $"Los límites están invertidos: se integra desde {limiteA} hasta {limiteB}. " +
+                        "Por eso el resultado de la integral es negativo.";
+
+                    lblDetalle2.Text =
+                        $"La gráfica muestra la función en el intervalo [{limiteB}, {limiteA}], " +
+                        "pero la integración se realiza en dirección inversa.";
+                }
+                else
+                {
+                    lblDetalle1.Text =
+                        $"Se dividió el intervalo [{limiteA}, {limiteB}] en {particiones} trapecios. " +
+                        "La integral definida representa el área con signo.";
+
+                    lblDetalle2.Text =
+                        $"Cálculo de la base de cada trapecio:\nh = ({limiteB} - {limiteA}) / {particiones}";
+                }
+
                 lblAntiderivada.Text = "Evaluación Numérica (Trapecio)";
 
                 lblDetalle1.Text = $"Se dividió el intervalo [{limiteA}, {limiteB}] en {particiones} trapecios. Recuerda que la integral definida representa el área con signo, no necesariamente el área geométrica.";
                 lblDetalle2.Text = $"Cálculo de la base de cada trapecio:\nh = ({limiteB} - {limiteA}) / {particiones}";
                 lblH.Text = $"h ≈ {h.ToString("F6")}";
+
+                GenerarGrafica(
+                   formula,
+                   variable,
+                   limiteA,
+                   limiteB,
+                   true
+                );
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error al evaluar numéricamente la función. Verifica la sintaxis de NCalc (ej. sin(x), cos(x), sqrt(x), Pow(x,2)).\n\nDetalle técnico: " + ex.Message, "Error de Evaluación", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void GenerarGrafica(
+        string formula,
+        string variable,
+        double minimoX,
+        double maximoX,
+        bool sombrearArea)
+        {
+            try
+            {
+                if (GraficaIntegral == null)
+                    return;
+
+                if (minimoX == maximoX)
+                    return;
+
+                // Para calcular los puntos siempre usamos el intervalo
+                // de menor a mayor.
+                double inicio = Math.Min(minimoX, maximoX);
+                double fin = Math.Max(minimoX, maximoX);
+
+                // ============================================================
+                // CREAR PUNTOS
+                // ============================================================
+
+                double[] xs = new double[PUNTOS_GRAFICA];
+                double[] ys = new double[PUNTOS_GRAFICA];
+
+                double paso = (fin - inicio) / (PUNTOS_GRAFICA - 1);
+
+                var expr = new NCalc.Expression(formula);
+
+                double minimoY = double.PositiveInfinity;
+                double maximoY = double.NegativeInfinity;
+
+                // ============================================================
+                // CALCULAR LOS VALORES DE LA FUNCIÓN
+                // ============================================================
+
+                for (int i = 0; i < PUNTOS_GRAFICA; i++)
+                {
+                    double x = inicio + (i * paso);
+
+                    xs[i] = x;
+
+                    try
+                    {
+                        expr.Parameters[variable] = x;
+
+                        double y = Convert.ToDouble(expr.Evaluate());
+
+                        if (double.IsNaN(y) || double.IsInfinity(y))
+                        {
+                            ys[i] = double.NaN;
+                        }
+                        else
+                        {
+                            ys[i] = y;
+
+                            minimoY = Math.Min(minimoY, y);
+                            maximoY = Math.Max(maximoY, y);
+                        }
+                    }
+                    catch
+                    {
+                        ys[i] = double.NaN;
+                    }
+                }
+
+                // ============================================================
+                // VERIFICAR VALORES
+                // ============================================================
+
+                if (double.IsInfinity(minimoY) ||
+                    double.IsInfinity(maximoY))
+                {
+                    MessageBox.Show(
+                        "No se pudieron obtener valores válidos para generar la gráfica.",
+                        "Error en la gráfica",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                    return;
+                }
+
+                // ============================================================
+                // LIMPIAR GRÁFICA
+                // ============================================================
+
+                GraficaIntegral.Plot.Clear();
+
+                // ============================================================
+                // COLORES
+                // ============================================================
+
+                GraficaIntegral.Plot.FigureBackground.Color =
+                    ScottPlot.Color.FromHex("#1B1B1B");
+
+                GraficaIntegral.Plot.DataBackground.Color =
+                    ScottPlot.Color.FromHex("#121212");
+
+                GraficaIntegral.Plot.Axes.Color(
+                    ScottPlot.Color.FromHex("#A3A3A3"));
+
+                GraficaIntegral.Plot.Grid.MajorLineColor =
+                    ScottPlot.Color.FromHex("#333333");
+
+                // ============================================================
+                // AGREGAR FUNCIÓN
+                // ============================================================
+
+                var grafica = GraficaIntegral.Plot.Add.Scatter(xs, ys);
+
+                grafica.Color =
+                    ScottPlot.Color.FromHex("#C08457");
+
+                grafica.LineWidth = 2.5f;
+
+                grafica.MarkerSize = 0;
+
+                // ============================================================
+                // SOMBREADO
+                // ============================================================
+
+                if (sombrearArea)
+                {
+                    grafica.FillY = true;
+
+                    grafica.FillYValue = 0;
+
+                    grafica.FillYColor =
+                        ScottPlot.Color.FromHex("#C08457")
+                        .WithAlpha(0.20);
+                }
+
+                // ============================================================
+                // RANGO DEL EJE Y
+                // ============================================================
+
+                minimoY = Math.Min(minimoY, 0);
+                maximoY = Math.Max(maximoY, 0);
+
+                double rangoY = maximoY - minimoY;
+
+                if (rangoY == 0)
+                    rangoY = 1;
+
+                double margenY = rangoY * 0.10;
+
+                double limiteYInferior = minimoY - margenY;
+                double limiteYSuperior = maximoY + margenY;
+
+                // ============================================================
+                // LÍMITES DEL GRÁFICO
+                // ============================================================
+
+                GraficaIntegral.Plot.Axes.SetLimits(
+                    inicio,
+                    fin,
+                    limiteYInferior,
+                    limiteYSuperior);
+
+                // ============================================================
+                // TÍTULO
+                // ============================================================
+
+                if (sombrearArea)
+                {
+                    GraficaIntegral.Plot.Title(
+                        $"f({variable})   Integral: {minimoX} → {maximoX}");
+                }
+                else
+                {
+                    GraficaIntegral.Plot.Title(
+                        $"Gráfica de f({variable})");
+                }
+
+                GraficaIntegral.Plot.XLabel(variable);
+
+                GraficaIntegral.Plot.YLabel(
+                    $"f({variable})");
+
+                // ============================================================
+                // ACTUALIZAR
+                // ============================================================
+
+                GraficaIntegral.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "No se pudo generar la gráfica.\n\n" +
+                    "Detalle técnico: " + ex.Message,
+                    "Error en la gráfica",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
         }
     }
