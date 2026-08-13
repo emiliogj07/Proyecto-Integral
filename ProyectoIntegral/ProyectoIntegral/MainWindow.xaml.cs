@@ -6,6 +6,7 @@ using NCalc;
 using AngouriMath;
 using AngouriMath.Extensions;
 using ScottPlot;
+using System.Text.RegularExpressions;
 
 using MediaColor = System.Windows.Media.Color;
 using MediaColors = System.Windows.Media.Colors;
@@ -28,6 +29,7 @@ namespace ProyectoIntegral
         public MainWindow()
         {
             InitializeComponent();
+            GraficaIntegral.UserInputProcessor.IsEnabled = false; // Evita que la grafica se mueva
             ActualizarPrevisualizacion(null, null); // Muestra la vista previa inicial al abrir la app
         }
 
@@ -182,7 +184,7 @@ namespace ProyectoIntegral
                 resultadoVisual = resultadoVisual.Replace("+-", "-");
                 resultadoVisual = resultadoVisual.Replace("*", " · ");
 
-                lblAntiderivada.Text = "F(" + variable + ") = " + resultadoVisual + " + C";
+                lblAntiderivada.Text = "F(" + variable + ") = " + resultadoVisual;
                 lblResultado.Text = "N/A";
 
                 lblDetalle1.Text = "Integración simbólica procesada por AngouriMath.";
